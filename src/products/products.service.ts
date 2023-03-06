@@ -5,17 +5,29 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { Color } from '../colors/entities/color.entity';
+import { Type } from '../types/entities/type.entity';
+import { Size } from '../sizes/entities/size.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private repo: Repository<Product>,
     @InjectRepository(Color) private colorRepo: Repository<Color>,
+    @InjectRepository(Type) private typeRepo: Repository<Type>,
+    @InjectRepository(Size) private sizeRepo: Repository<Size>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
     const color = await this.colorRepo.findOne({
       where: { id: createProductDto.color },
+    });
+
+    const type = await this.typeRepo.findOne({
+      where: { id: createProductDto.type },
+    });
+
+    const size = await this.sizeRepo.findOne({
+      where: { id: createProductDto.size },
     });
 
     if (!color) {
@@ -24,9 +36,19 @@ export class ProductsService {
       );
     }
 
+    if (!type) {
+      throw new NotFoundException(`Type "${createProductDto.type}" not found`);
+    }
+
+    if (!size) {
+      throw new NotFoundException(`Size "${createProductDto.size}" not found`);
+    }
+
     const newProduct = this.repo.create({
       ...createProductDto,
       color,
+      type,
+      size,
     });
 
     return this.repo.save(newProduct);
@@ -37,11 +59,24 @@ export class ProductsService {
 
     const query = this.repo
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.color', 'color');
+      .leftJoinAndSelect('product.color', 'color')
+      .leftJoinAndSelect('product.type', 'type')
+      .leftJoinAndSelect('product.size', 'size')
+      .select([
+        'product.id',
+        'product.name',
+        'product.price',
+        'product.picture',
+        'product.size',
+        'product.type',
+        'color.id',
+        'type.id',
+        'size.id',
+      ]);
 
     if (color) {
       const colorsArray = color.split(',');
-      query.where('product.colors IN (:...colors)', { colors: colorsArray });
+      query.where('product.color IN (:...colors)', { colors: colorsArray });
     }
 
     if (type) {

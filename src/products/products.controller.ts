@@ -12,6 +12,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
@@ -25,9 +26,23 @@ export class ProductsController {
   constructor(public service: ProductsService) {}
 
   @ApiOkResponse({ type: Product, isArray: true })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    example: '1',
+    description: 'Default: 1',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: '10',
+    description: 'Default: 10',
+  })
+  @ApiQuery({ name: 'color', required: false, example: 'red,blue' })
+  @ApiQuery({ name: 'type', required: false, example: 'sneakers,boots' })
+  @ApiQuery({ name: 'size', required: false, example: '46,48' })
   @Get()
   async getProducts(@Query() getProductsDto: GetProductsDto) {
-    console.log(getProductsDto);
     const [products, total] = await this.service.findAll(getProductsDto);
     return { data: products, total };
   }

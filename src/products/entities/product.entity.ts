@@ -7,6 +7,8 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Color } from '../../colors/entities/color.entity';
+import { Type } from '../../types/entities/type.entity';
+import { Size } from '../../sizes/entities/size.entity';
 
 @Entity()
 export class Product {
@@ -24,7 +26,7 @@ export class Product {
 
   @ApiProperty()
   @ManyToOne(() => Color, (color) => color.products, { eager: false })
-  @JoinColumn({ name: 'color' })
+  @JoinColumn({ name: 'colorId' })
   color: Color;
 
   @ApiProperty()
@@ -32,14 +34,14 @@ export class Product {
   description: string;
 
   @ApiProperty()
-  @Column()
-  // Todo: link size
-  size: number;
+  @ManyToOne(() => Size, (size) => size.products, { eager: false })
+  @JoinColumn({ name: 'sizeId' })
+  size: Size;
 
   @ApiProperty()
-  @Column()
-  // Todo: link type
-  type: string;
+  @ManyToOne(() => Type, (type) => type.products, { eager: false })
+  @JoinColumn({ name: 'typeId' })
+  type: Type;
 
   @ApiProperty()
   @Column()
