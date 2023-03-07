@@ -3,6 +3,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
+import { getUserWithoutPassword } from '../../utils/utils';
 
 @Injectable()
 export class UsersService {
@@ -11,19 +12,21 @@ export class UsersService {
   async create(user: CreateUserDto) {
     const newUser = await this.repo.create(user);
     await this.repo.save(newUser);
-    const { password, ...rest } = newUser;
-    return rest;
+
+    return getUserWithoutPassword(newUser);
   }
 
   findAll() {
     return this.repo.find();
   }
 
-  findByEmail(email: string) {
-    return this.repo.findOne({ where: { email } });
+  async findByEmail(email: string) {
+    return await this.repo.findOne({ where: { email } });
   }
 
-  findById(id: number) {
-    return this.repo.findOne({ where: { id } });
+  async findById(id: number) {
+    const user = await this.repo.findOne({ where: { id } });
+
+    return getUserWithoutPassword(user);
   }
 }

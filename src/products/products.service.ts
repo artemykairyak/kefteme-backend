@@ -55,7 +55,8 @@ export class ProductsService {
   }
 
   async findAll(getProductsDto: GetProductsDto): Promise<[Product[], number]> {
-    const { page = 1, limit = 10, type, color, size } = getProductsDto;
+    const { page = 1, limit = 10, type, color, size, sort } = getProductsDto;
+    const [sortField, sortOrder] = sort.split('-');
 
     const query = this.repo
       .createQueryBuilder('product')
@@ -87,6 +88,13 @@ export class ProductsService {
     if (size) {
       const sizesArray = size.split(',');
       query.where('product.size IN (:...sizes)', { sizes: sizesArray });
+    }
+
+    if (
+      ['name', 'price'].includes(sortField) &&
+      ['ASC', 'DESC'].includes(sortOrder)
+    ) {
+      query.orderBy(`product.${sortField}`, sortOrder as 'ASC' | 'DESC');
     }
 
     const [products, total] = await query

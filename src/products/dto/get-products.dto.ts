@@ -1,4 +1,4 @@
-import {IsNumberString, IsOptional} from "class-validator";
+import { IsNumberString, IsOptional } from 'class-validator';
 
 export class GetProductsDto {
   @IsOptional()
@@ -17,4 +17,7 @@ export class GetProductsDto {
 
   @IsOptional()
   size?: string;
+
+  @IsOptional()
+  sort?: string;
 }

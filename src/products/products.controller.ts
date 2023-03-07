@@ -41,6 +41,7 @@ export class ProductsController {
   @ApiQuery({ name: 'color', required: false, example: 'red,blue' })
   @ApiQuery({ name: 'type', required: false, example: 'sneakers,boots' })
   @ApiQuery({ name: 'size', required: false, example: '46,48' })
+  @ApiQuery({ name: 'sort', required: false, example: 'name-ASC' })
   @Get()
   async getProducts(@Query() getProductsDto: GetProductsDto) {
     const [products, total] = await this.service.findAll(getProductsDto);
