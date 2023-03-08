@@ -10,7 +10,7 @@ export class Size {
 
   @ApiProperty()
   @Column()
-  size: string;
+  size: number;
 
   @OneToMany(() => Product, (product) => product.size)
   products: Product[];

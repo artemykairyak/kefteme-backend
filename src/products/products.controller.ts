@@ -19,11 +19,18 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
+import { RequestResponseDto } from '../request/request.dto';
 
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(public service: ProductsService) {}
+
+  @ApiCreatedResponse({ type: RequestResponseDto })
+  @Post()
+  createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.service.create(createProductDto);
+  }
 
   @ApiOkResponse({
     type: ProductsResponseDto,
@@ -56,11 +63,5 @@ export class ProductsController {
   @Get(':id')
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     return await this.service.findById(id);
-  }
-
-  @ApiCreatedResponse({ type: CreateProductDto })
-  @Post()
-  createProduct(@Body() body: CreateProductDto) {
-    return this.service.create(body);
   }
 }

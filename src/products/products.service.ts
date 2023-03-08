@@ -14,7 +14,7 @@ import { Type } from '../types/entities/type.entity';
 import { Size } from '../sizes/entities/size.entity';
 import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
-import { getFlatProduct } from '../utils/utils';
+import { sendOkResponse } from '../utils/utils';
 
 @Injectable()
 export class ProductsService {
@@ -35,7 +35,7 @@ export class ProductsService {
     });
 
     const size = await this.sizeRepo.findOne({
-      where: { id: createProductDto.size },
+      where: { id: createProductDto.size.toString() },
     });
 
     if (!color) {
@@ -60,7 +60,9 @@ export class ProductsService {
     });
 
     await this.repo.save(newProduct);
-    return getFlatProduct(newProduct);
+    return sendOkResponse(
+      `Product ${createProductDto.name} was succesfully created`,
+    );
   }
 
   async findAll(
@@ -143,7 +145,7 @@ export class ProductsService {
 
     return {
       ...product,
-      size: product.size.id,
+      size: +product.size.id,
       type: product.type.id,
       color: product.color.id,
     };

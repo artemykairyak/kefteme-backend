@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { SignUpUserDto } from './dto/signup-user.dto';
 import { getUserWithoutPassword } from '../utils/utils';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,16 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.usersService.findByEmail(loginUserDto.email);
+
+    if (!user) {
+      throw new HttpException(
+        'Invalid email or password',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     const payload = { email: user.email, sub: user.id };
 
     const access_token = this.jwtService.sign(payload);

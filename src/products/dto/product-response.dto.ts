@@ -19,7 +19,7 @@ export class ProductResponseDto {
   description: string;
 
   @ApiProperty()
-  size: string;
+  size: number;
 
   @ApiProperty()
   type: string;

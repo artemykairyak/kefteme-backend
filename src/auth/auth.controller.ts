@@ -20,6 +20,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequestResponseDto } from '../request/request.dto';
 import { User } from '../users/entities/user.entity';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @ApiTags('auth')
 @Controller()
@@ -30,8 +31,8 @@ export class AuthController {
   @ApiResponse({ status: 400, type: RequestResponseDto })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
   }
 
   @ApiResponse({ status: 400, type: RequestResponseDto })

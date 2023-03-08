@@ -15,3 +15,11 @@ export const getFlatProduct = (product: Product) => {
     type: product.type.id,
   };
 };
+
+export const sendOkResponse = (message?: string, result?: any) => {
+  return {
+    statusCode: 200,
+    data: result,
+    message,
+  };
+};

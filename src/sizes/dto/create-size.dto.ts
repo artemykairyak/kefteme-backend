@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSizeDto {
   @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   id: string;
 
   @ApiProperty()
-  size: string;
+  @IsNumber()
+  @IsNotEmpty()
+  size: number;
 }
