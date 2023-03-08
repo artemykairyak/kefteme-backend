@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity()
 export class User {
@@ -22,4 +23,10 @@ export class User {
   @ApiProperty()
   @Column()
   password: string;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
+
+  // @OneToMany(() => Order, (order) => order.user)
+  // orders: Order[];
 }

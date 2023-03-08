@@ -17,7 +17,6 @@ export class CreateProductDto {
   size: string;
 
   @ApiProperty()
-  // Todo: link type
   type: string;
 
   @ApiProperty()
