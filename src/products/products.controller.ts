@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -17,15 +16,19 @@ import {
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Product } from './entities/product.entity';
 import { GetProductsDto } from './dto/get-products.dto';
+import { ProductsResponseDto } from './dto/products-response.dto';
+import { ProductResponseDto } from './dto/product-response.dto';
 
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(public service: ProductsService) {}
 
-  @ApiOkResponse({ type: Product, isArray: true })
+  @ApiOkResponse({
+    type: ProductsResponseDto,
+    isArray: true,
+  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -48,20 +51,14 @@ export class ProductsController {
     return { data: products, total };
   }
 
-  @ApiOkResponse({ type: Product })
+  @ApiOkResponse({ type: ProductResponseDto })
   @ApiNotFoundResponse()
   @Get(':id')
   async getProductById(@Param('id', ParseIntPipe) id: number) {
-    const product = await this.service.findById(id);
-
-    if (!product) {
-      throw new NotFoundException();
-    }
-
-    return product;
+    return await this.service.findById(id);
   }
 
-  @ApiCreatedResponse({ type: Product })
+  @ApiCreatedResponse({ type: CreateProductDto })
   @Post()
   createProduct(@Body() body: CreateProductDto) {
     return this.service.create(body);

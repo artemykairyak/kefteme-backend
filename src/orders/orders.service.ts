@@ -8,6 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { OrderProduct } from '../order-products/order-product.entity';
 import { ProductsService } from '../products/products.service';
 import { v4 as uuidv4 } from 'uuid';
+import { ResponseOrderDto } from './dto/response-orders.dto';
 
 @Injectable()
 export class OrdersService {
@@ -78,10 +79,8 @@ export class OrdersService {
     throw new HttpException('Order was successfully created', HttpStatus.OK);
   }
 
-  async findAllUserOrders(user: User) {
-    const _user = await this.usersService.findById(user.id);
-
-    if (!_user) {
+  async findAllUserOrders(user: User): Promise<ResponseOrderDto[]> {
+    if (!user) {
       throw new HttpException(
         `User with ID ${user.id} not found`,
         HttpStatus.BAD_REQUEST,
@@ -91,20 +90,30 @@ export class OrdersService {
     const query = await this.orderRepository
       .createQueryBuilder('order')
       .innerJoinAndSelect('order.user', 'user')
-      .where('user.id = :id', { id: _user.id })
+      .where('user.id = :id', { id: user.id })
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
+      .leftJoinAndSelect('product.color', 'color')
+      .leftJoinAndSelect('product.type', 'type')
+      .leftJoinAndSelect('product.size', 'size')
       .getMany();
 
     return query.map((order) => {
       const products = order.orderProducts.map((product) => {
-        return product.product;
+        return {
+          ...product.product,
+          price: +product.product.price,
+          color: product.product.color.id,
+          size: product.product.size.size,
+          type: product.product.type.id,
+          quantity: product.quantity,
+        };
       });
 
       return {
         date: order.date,
         id: order.id,
-        sum: order.sum,
+        sum: +order.sum,
         status: order.status,
         products,
       };

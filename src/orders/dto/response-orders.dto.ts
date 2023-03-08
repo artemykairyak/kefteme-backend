@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Product } from '../../products/entities/product.entity';
+import { ProductResponseDto } from '../../products/dto/product-response.dto';
 
 export class ResponseOrderDto {
   @ApiProperty()
@@ -14,6 +14,6 @@ export class ResponseOrderDto {
   @ApiProperty()
   sum: number;
 
-  @ApiProperty()
-  products: Product[];
+  @ApiProperty({ type: ProductResponseDto, isArray: true })
+  products: ProductResponseDto[];
 }

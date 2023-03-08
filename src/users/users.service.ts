@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
-import { getUserWithoutPassword } from '../../utils/utils';
+import { getUserWithoutPassword } from '../utils/utils';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +26,13 @@ export class UsersService {
 
   async findById(id: number) {
     const user = await this.repo.findOne({ where: { id } });
+
+    if (!user) {
+      throw new HttpException(
+        `User with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     return getUserWithoutPassword(user);
   }

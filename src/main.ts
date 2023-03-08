@@ -7,6 +7,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Kefteme Marketplace Documentation')
+    .setDescription(
+      'Repository: https://github.com/artemykairyak/kefteme-backend',
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

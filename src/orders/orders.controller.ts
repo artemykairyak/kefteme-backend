@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ResponseOrderDto } from './dto/response-orders.dto';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -24,8 +25,10 @@ export class OrdersController {
     return this.ordersService.create(req.user, createOrderDto);
   }
 
+  @ApiResponse({ status: 200, type: ResponseOrderDto, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiHeader({ name: 'Authorization', description: 'Bearer {access_token}' })
   findUserOrders(@Request() req) {
     return this.ordersService.findAllUserOrders(req.user);
   }

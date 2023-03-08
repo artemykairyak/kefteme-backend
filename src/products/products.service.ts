@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
@@ -7,6 +12,9 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { Color } from '../colors/entities/color.entity';
 import { Type } from '../types/entities/type.entity';
 import { Size } from '../sizes/entities/size.entity';
+import { ProductsResponseDto } from './dto/products-response.dto';
+import { ProductResponseDto } from './dto/product-response.dto';
+import { getFlatProduct } from '../utils/utils';
 
 @Injectable()
 export class ProductsService {
@@ -51,12 +59,15 @@ export class ProductsService {
       size,
     });
 
-    return this.repo.save(newProduct);
+    await this.repo.save(newProduct);
+    return getFlatProduct(newProduct);
   }
 
-  async findAll(getProductsDto: GetProductsDto): Promise<[Product[], number]> {
+  async findAll(
+    getProductsDto: GetProductsDto,
+  ): Promise<[ProductsResponseDto[], number]> {
     const { page = 1, limit = 10, type, color, size, sort } = getProductsDto;
-    const [sortField, sortOrder] = sort.split('-');
+    const [sortField, sortOrder] = sort ? sort.split('-') : [];
 
     const query = this.repo
       .createQueryBuilder('product')
@@ -102,10 +113,39 @@ export class ProductsService {
       .take(limit)
       .getManyAndCount();
 
-    return [products, total];
+    const mappedProducts: ProductsResponseDto[] = products.map(
+      ({ name, price, id, picture, color }) => {
+        return {
+          id,
+          name,
+          price: +price,
+          picture,
+          color: color.id,
+        };
+      },
+    );
+
+    return [mappedProducts, total];
   }
 
-  findById(id: number) {
-    return this.repo.findOne({ where: { id } });
+  async findById(productId: number): Promise<ProductResponseDto> {
+    const product = await this.repo.findOne({
+      where: { id: productId },
+      relations: ['color', 'type', 'size'],
+    });
+
+    if (!product) {
+      throw new HttpException(
+        `Product with id ${productId} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      ...product,
+      size: product.size.id,
+      type: product.type.id,
+      color: product.color.id,
+    };
   }
 }
