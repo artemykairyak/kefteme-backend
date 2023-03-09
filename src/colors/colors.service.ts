@@ -11,7 +11,8 @@ export class ColorsService {
 
   async create(createColorDto: CreateColorDto) {
     try {
-      await this.repo.insert(createColorDto);
+      const newColor = await this.repo.create(createColorDto);
+      await this.repo.save(newColor);
       return sendOkResponse(
         `Color with id ${createColorDto.id} was successfully created`,
       );

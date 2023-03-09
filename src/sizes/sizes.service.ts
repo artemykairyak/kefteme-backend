@@ -11,7 +11,9 @@ export class SizesService {
 
   async create(createSizeDto: CreateSizeDto) {
     try {
-      await this.repo.insert(createSizeDto);
+      const newSize = await this.repo.create(createSizeDto);
+      await this.repo.save(newSize);
+
       return sendOkResponse(
         `Size with id ${createSizeDto.id} was successfully created`,
       );

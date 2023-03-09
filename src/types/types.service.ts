@@ -11,7 +11,8 @@ export class TypesService {
 
   async create(createTypeDto: CreateTypeDto) {
     try {
-      await this.repo.insert(createTypeDto);
+      const newType = await this.repo.create(createTypeDto);
+      await this.repo.save(newType);
 
       return sendOkResponse(
         `Type with id ${createTypeDto.id} was successfully created`,
