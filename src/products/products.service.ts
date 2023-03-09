@@ -150,4 +150,10 @@ export class ProductsService {
       color: product.color.id,
     };
   }
+
+  async remove(id: number) {
+    await this.repo.delete(id);
+
+    return sendOkResponse(`Product with id ${id} was successfully deleted`);
+  }
 }

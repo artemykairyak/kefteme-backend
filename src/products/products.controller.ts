@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -12,6 +13,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
@@ -63,5 +65,11 @@ export class ProductsController {
   @Get(':id')
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     return await this.service.findById(id);
+  }
+
+  @ApiResponse({ status: 200, type: RequestResponseDto })
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.service.remove(id);
   }
 }

@@ -9,6 +9,7 @@ import { OrderProduct } from '../order-products/order-product.entity';
 import { ProductsService } from '../products/products.service';
 import { v4 as uuidv4 } from 'uuid';
 import { ResponseOrderDto } from './dto/response-orders.dto';
+import { sendOkResponse } from '../utils/utils';
 
 @Injectable()
 export class OrdersService {
@@ -76,7 +77,7 @@ export class OrdersService {
         .execute();
     });
 
-    throw new HttpException('Order was successfully created', HttpStatus.OK);
+    return sendOkResponse('Order was successfully created');
   }
 
   async findAllUserOrders(user: User): Promise<ResponseOrderDto[]> {
@@ -120,13 +121,24 @@ export class OrdersService {
     });
   }
 
-  async findOrderByUserId(user: User, orderId: string) {}
+  async remove(id: string) {
+    try {
+      const order = await this.orderRepository.findOne({
+        where: { id },
+        relations: ['orderProducts'],
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
+      if (!order) {
+        return new HttpException('Invalid order id', HttpStatus.BAD_REQUEST);
+      }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+      await this.orderProductRepository.delete({
+        order: { id: order.id },
+      });
+      await this.orderRepository.delete(id);
+      return sendOkResponse(`Order with id was ${id} deleted successfully`);
+    } catch (e) {
+      return new HttpException(e.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

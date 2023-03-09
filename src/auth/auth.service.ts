@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { SignUpUserDto } from './dto/signup-user.dto';
-import { getUserWithoutPassword } from '../utils/utils';
+import { getUserWithoutPassword, sendOkResponse } from '../utils/utils';
 import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
@@ -63,7 +63,7 @@ export class AuthService {
     });
 
     if (newUser) {
-      throw new HttpException('User created successfully', HttpStatus.OK);
+      return sendOkResponse('User created successfully');
     }
   }
 
