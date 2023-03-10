@@ -145,6 +145,7 @@ export class ProductsService {
 
     return {
       ...product,
+      price: +product.price,
       size: +product.size.id,
       type: product.type.id,
       color: product.color.id,

@@ -51,8 +51,4 @@ export class Product {
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
   orderProducts: OrderProduct[];
-
-  // @ManyToMany(() => Order, (order) => order.products)
-  // @JoinColumn({ name: 'orderId' })
-  // orders: Order[];
 }
