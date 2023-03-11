@@ -18,7 +18,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { SignUpUserDto } from './dto/signup-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { RequestResponseDto } from '../request/request.dto';
+import { ResponseDto } from '../request-response/dto/response.dto';
 import { User } from '../users/entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -28,21 +28,21 @@ export class AuthController {
   constructor(public authService: AuthService) {}
 
   @ApiCreatedResponse({ type: LoginResponseDto })
-  @ApiResponse({ status: 400, type: RequestResponseDto })
+  @ApiResponse({ status: 400, type: ResponseDto })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
 
-  @ApiResponse({ status: 400, type: RequestResponseDto })
-  @ApiResponse({ status: 200, type: RequestResponseDto })
+  @ApiResponse({ status: 400, type: ResponseDto })
+  @ApiResponse({ status: 200, type: ResponseDto })
   @Post('signUp')
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
     return this.authService.signUp(signUpUserDto);
   }
 
-  @ApiResponse({ status: 401, type: RequestResponseDto })
+  @ApiResponse({ status: 401, type: ResponseDto })
   @ApiResponse({ status: 200, type: OmitType(User, ['password']) })
   @UseGuards(JwtAuthGuard)
   @Get('me')

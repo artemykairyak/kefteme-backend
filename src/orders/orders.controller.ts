@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ResponseOrderDto } from './dto/response-orders.dto';
-import { RequestResponseDto } from '../request/request.dto';
+import { ResponseDto } from '../request-response/dto/response.dto';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -26,7 +26,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({ type: RequestResponseDto })
+  @ApiCreatedResponse({ type: ResponseDto })
   @Post()
   create(@Request() req, @Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(req.user, createOrderDto);
@@ -40,7 +40,7 @@ export class OrdersController {
     return this.ordersService.findAllUserOrders(req.user);
   }
 
-  @ApiResponse({ status: 200, type: RequestResponseDto })
+  @ApiResponse({ status: 200, type: ResponseDto })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove(id);

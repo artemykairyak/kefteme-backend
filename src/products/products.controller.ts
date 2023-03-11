@@ -21,14 +21,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
-import { RequestResponseDto } from '../request/request.dto';
+import { ResponseDto } from '../request-response/dto/response.dto';
 
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(public service: ProductsService) {}
 
-  @ApiCreatedResponse({ type: RequestResponseDto })
+  @ApiCreatedResponse({ type: ResponseDto })
   @Post()
   createProduct(@Body() createProductDto: CreateProductDto) {
     return this.service.create(createProductDto);
@@ -67,7 +67,7 @@ export class ProductsController {
     return await this.service.findById(id);
   }
 
-  @ApiResponse({ status: 200, type: RequestResponseDto })
+  @ApiResponse({ status: 200, type: ResponseDto })
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.service.remove(id);
