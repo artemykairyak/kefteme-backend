@@ -10,9 +10,10 @@ export const getUserWithoutPassword = (user: User) => {
 export const getFlatProduct = (product: Product) => {
   return {
     ...product,
-    size: product.size.id,
+    size: +product.size.id,
     color: product.color.id,
     type: product.type.id,
+    price: +product.price,
   };
 };
 

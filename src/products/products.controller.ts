@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { ResponseDto } from '../request-response/dto/response.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -65,6 +67,16 @@ export class ProductsController {
   @Get(':id')
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     return await this.service.findById(id);
+  }
+
+  @ApiOkResponse({ type: ProductResponseDto })
+  @ApiNotFoundResponse()
+  @Patch(':id')
+  async editProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return await this.service.edit(id, updateProductDto);
   }
 
   @ApiResponse({ status: 200, type: ResponseDto })

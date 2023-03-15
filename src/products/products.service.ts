@@ -14,7 +14,8 @@ import { Type } from '../types/entities/type.entity';
 import { Size } from '../sizes/entities/size.entity';
 import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
-import { sendOkResponse } from '../utils/utils';
+import { getFlatProduct, sendOkResponse } from '../utils/utils';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -69,6 +70,7 @@ export class ProductsService {
     getProductsDto: GetProductsDto,
   ): Promise<[ProductsResponseDto[], number]> {
     const { page = 1, limit = 10, type, color, size, sort } = getProductsDto;
+
     const [sortField, sortOrder] = sort ? sort.split('-') : [];
 
     const query = this.repo
@@ -150,6 +152,74 @@ export class ProductsService {
       type: product.type.id,
       color: product.color.id,
     };
+  }
+
+  async edit(id: number, updateProductDto: UpdateProductDto) {
+    const product = await this.repo.findOne({
+      where: { id },
+      relations: ['type', 'size', 'color'],
+    });
+
+    if (!product) {
+      throw new HttpException(
+        `Product with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (updateProductDto.color) {
+      const color = await this.colorRepo.findOne({
+        where: { id: updateProductDto.color },
+      });
+
+      if (!color) {
+        throw new HttpException(
+          `Color ${updateProductDto.color} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      product.color = color;
+    }
+
+    if (updateProductDto.type) {
+      const type = await this.typeRepo.findOne({
+        where: { id: updateProductDto.type },
+      });
+
+      if (!type) {
+        throw new HttpException(
+          `Type ${updateProductDto.type} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      product.type = type;
+    }
+
+    if (updateProductDto.size) {
+      const size = await this.sizeRepo.findOne({
+        where: { size: updateProductDto.size },
+      });
+
+      if (!size) {
+        throw new HttpException(
+          `Size ${updateProductDto.size} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      product.size = size;
+    }
+
+    const updatedProduct = this.repo.merge(
+      product,
+      updateProductDto as unknown as Product,
+    );
+
+    await this.repo.save(updatedProduct);
+
+    return sendOkResponse(
+      `Product with id ${id} was successfully updated`,
+      getFlatProduct(updatedProduct),
+    );
   }
 
   async remove(id: number) {
