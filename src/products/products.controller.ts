@@ -10,12 +10,15 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
+  OmitType,
+  PartialType,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -24,6 +27,14 @@ import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { ResponseDto } from '../request-response/dto/response.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+
+class ProductResponseDtoOmittedQuantity extends OmitType(ProductResponseDto, [
+  'quantity',
+]) {}
+
+class ProductOptionalBody extends PartialType(
+  ProductResponseDtoOmittedQuantity,
+) {}
 
 @ApiTags('products')
 @Controller('products')
@@ -62,19 +73,27 @@ export class ProductsController {
     return { data: products, total };
   }
 
-  @ApiOkResponse({ type: ProductResponseDto })
-  @ApiNotFoundResponse()
+  @ApiOkResponse({
+    type: ProductResponseDtoOmittedQuantity,
+  })
+  @ApiNotFoundResponse({ type: ResponseDto })
   @Get(':id')
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     return await this.service.findById(id);
   }
 
-  @ApiOkResponse({ type: ProductResponseDto })
-  @ApiNotFoundResponse()
   @Patch(':id')
+  @ApiBody({
+    type: ProductOptionalBody,
+    required: false,
+    description: 'All fields are optional',
+  })
+  @ApiOkResponse({
+    type: UpdateProductDto,
+  })
   async editProduct(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateProductDto: UpdateProductDto,
+    @Body() updateProductDto?: UpdateProductDto,
   ) {
     return await this.service.edit(id, updateProductDto);
   }

@@ -1,5 +1,7 @@
 import { Entity } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 @Entity()
 export class ProductResponseDto {
@@ -27,6 +29,7 @@ export class ProductResponseDto {
   @ApiProperty()
   picture: string;
 
-  @ApiProperty()
+  @ApiModelProperty()
+  @IsOptional()
   quantity?: number;
 }
