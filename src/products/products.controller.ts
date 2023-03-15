@@ -33,7 +33,7 @@ class ProductResponseDtoOmittedQuantity extends OmitType(ProductResponseDto, [
 ]) {}
 
 class ProductOptionalBody extends PartialType(
-  ProductResponseDtoOmittedQuantity,
+  OmitType(ProductResponseDtoOmittedQuantity, ['id']),
 ) {}
 
 @ApiTags('products')

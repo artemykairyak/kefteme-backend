@@ -12,10 +12,10 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { Color } from '../colors/entities/color.entity';
 import { Type } from '../types/entities/type.entity';
 import { Size } from '../sizes/entities/size.entity';
-import { ProductsResponseDto } from './dto/products-response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { getFlatProduct, sendOkResponse } from '../utils/utils';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductsResponseDto } from './dto/products-response.dto';
 
 @Injectable()
 export class ProductsService {
@@ -69,9 +69,7 @@ export class ProductsService {
   async findAll(
     getProductsDto: GetProductsDto,
   ): Promise<[ProductsResponseDto[], number]> {
-    const { page = 1, limit = 10, type, color, size, sort } = getProductsDto;
-
-    const [sortField, sortOrder] = sort ? sort.split('-') : [];
+    const { page = 1, limit = 10, sort } = getProductsDto;
 
     const query = this.repo
       .createQueryBuilder('product')
@@ -90,19 +88,29 @@ export class ProductsService {
         'size.id',
       ]);
 
-    if (color) {
-      const colorsArray = color.split(',');
-      query.where('product.color IN (:...colors)', { colors: colorsArray });
-    }
+    const [sortField, sortOrder] = sort ? sort.split('-') : [];
 
-    if (type) {
-      const typesArray = type.split(',');
-      query.where('product.type IN (:...types)', { types: typesArray });
-    }
+    for (const key in getProductsDto) {
+      const value = getProductsDto[key];
 
-    if (size) {
-      const sizesArray = size.split(',');
-      query.where('product.size IN (:...sizes)', { sizes: sizesArray });
+      switch (key) {
+        case 'size':
+          const sizesArray = value.split(',');
+          query.andWhere('product.size IN (:...sizes)', {
+            sizes: sizesArray,
+          });
+          break;
+        case 'type':
+          const typesArray = value.split(',');
+          query.andWhere('product.type IN (:...types)', { types: typesArray });
+          break;
+        case 'color':
+          const colorsArray = value.split(',');
+          query.andWhere('product.color IN (:...colors)', {
+            colors: colorsArray,
+          });
+          break;
+      }
     }
 
     if (
@@ -117,17 +125,9 @@ export class ProductsService {
       .take(limit)
       .getManyAndCount();
 
-    const mappedProducts: ProductsResponseDto[] = products.map(
-      ({ name, price, id, picture, color }) => {
-        return {
-          id,
-          name,
-          price: +price,
-          picture,
-          color: color.id,
-        };
-      },
-    );
+    const mappedProducts: ProductsResponseDto[] = products.map((item) => {
+      return getFlatProduct(item);
+    });
 
     return [mappedProducts, total];
   }
