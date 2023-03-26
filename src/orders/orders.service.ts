@@ -97,6 +97,7 @@ export class OrdersService {
       .leftJoinAndSelect('product.color', 'color')
       .leftJoinAndSelect('product.type', 'type')
       .leftJoinAndSelect('product.size', 'size')
+      .orderBy(`order.date`, 'DESC')
       .getMany();
 
     return query.map((order) => {
